@@ -1,0 +1,410 @@
+"""
+Checks if the user has admin access.
+"""
+directive @adminAccess on FIELD_DEFINITION
+
+"""
+Checks if the user has portal access.
+"""
+directive @portalAccess on FIELD_DEFINITION
+
+"""
+Limits access to staff users only.
+"""
+directive @staffOnly on FIELD_DEFINITION
+
+"""
+Date and time scalar.
+"""
+scalar DateTime
+
+"""
+App manifest data.
+"""
+type Manifest {
+  name: String!
+  version: String!
+  about: String!
+  permissions: [Permission!]!
+  appUrl: String!
+  tokenTargetUrl: String!
+  webhooks: [WebhookURL!]!
+  extensions: [AppExtension!]!
+}
+
+"""
+Registration input.
+"""
+input RegisterInput {
+  authToken: String!
+  domain: String!
+}
+
+"""
+Registration result.
+"""
+type RegisterResult {
+  success: Boolean!
+}
+
+"""
+Root query type.
+"""
+type Query {
+
+  """
+  Retrieve the app manifest data.
+  """
+  manifest: Manifest!
+
+  """ 
+  Retrieve a paginated list of auctions.
+  """
+  auctions(  
+    skip: Int
+    first: Int
+  ): AuctionConnection!
+
+  """
+  Retrieve an auction by ID.
+  """
+  auction(id: ID!): Auction
+
+  """
+  Search auctions by keywords.
+  """
+  searchAuctions(input: AuctionSearchInput!): [Auction!]!
+
+  """
+  Retrieve a paginated list of lots.
+  """
+  lots(skip: Int, first: Int, filter: LotFilterInput): LotConnection!
+
+  """
+  Search lots by keywords.
+  """
+  searchLots(input: LotSearchInput!): [Lot!]!
+
+  """
+  Retrieve all bid increment rules.
+  """
+  bidIncrementRules: [BidIncrementRule!]!
+
+  """
+  Calculate bid increment for a lot.
+  """
+  bidIncrement(lotId: ID!): Float!
+
+  """
+  Retrieve a lot by ID.
+  """
+  lot(id: ID!): Lot
+
+  """
+  Open a lot for bidding.
+  """
+  openLot(lotId: ID!): Lot  
+
+  """
+  Close a lot.
+  """
+  closeLot(lotId: ID!): Lot
+
+  """
+  Retrieve a paginated list of auctions with optional filters and sorting.
+  """
+  auctions(filter: AuctionFilterInput, sortBy: AuctionSortingInput, channel: String, before: String, after: String, first: Int, last: Int): AuctionCountableConnection!
+
+  """
+  Retrieve an auction by ID or slug with optional channel filter.
+  """
+  auction(id: ID!, slug: String, channel: String): Auction
+}
+
+"""
+Root mutation type.
+"""
+type Mutation {
+
+  """
+  Register the app with authentication token and domain.
+  """
+  register(input: RegisterInput!): RegisterResult!
+
+  """
+  Create a new lot.
+  """
+  createLot(input: CreateLotInput!): Lot!
+
+  """
+  Place a new bid on a lot.
+  """
+  placeBid(input: PlaceBidInput!): Bid!
+
+  """
+  Set the closing time for a lot.
+  """
+  setLotClosingTime(input: SetLotClosingTimeInput!): Lot!
+
+  """
+  Create a bid increment rule.
+  """
+  createBidIncrementRule(input: CreateBidIncrementRuleInput!): BidIncrementRule!
+}
+
+"""
+Shared interface.
+"""
+interface Node {
+  """
+  Global ID.
+  """
+  id: ID!
+}
+
+"""
+Lot type.
+"""
+type Lot {
+  """
+  Lot ID.
+  """
+  id: ID!
+
+  """
+  Lot name.
+  """
+  name: String!
+
+  """
+  Date and time when the lot ends.
+  """
+  endDateTime: DateTime!
+
+  """
+  Countdown duration for the lot.
+  """
+  countdown: Int!
+}
+
+"""
+Lot countable connection.
+"""
+type LotCountableConnection {
+  pageInfo: PageInfo!
+  edges: [LotCountableEdge]!
+  totalCount: Int
+}
+
+"""
+Lot countable edge.
+"""
+type LotCountableEdge {
+  node: Lot
+  cursor: String!
+}
+
+input LotFilterInput {
+  # Filtering options for lots (if needed)
+}
+
+input LotSortingInput {
+  # Sorting options for lots (if needed)
+}
+
+input AuctionFilterInput {
+  search: String
+  metadata: [MetadataFilter]
+  ids: [ID]
+  startDate: DateTime
+  endDate: DateTime
+}
+
+input AuctionSortingInput {
+  direction: OrderDirection!
+  field: AuctionSortField!
+}
+
+enum AuctionSortField {
+  NAME
+  START_DATE
+  END_DATE
+}
+
+"""
+Auction type.
+"""
+type Auction {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  seoDescription: String
+  seoTitle: String
+  backgroundImage: Image
+  backgroundImageAlt: String
+
+  """
+  Date and time when the auction starts.
+  """
+  startsOn: DateTime!
+
+  """
+  Date and time when the auction ends.
+  """
+  endsOn: DateTime!
+
+  """
+  Channel associated with the auction.
+  """
+  channel: Channel!
+
+  """
+  Translation of auction information in a specific language.
+  """
+  translation(languageCode: LanguageCodeEnum!): AuctionTranslation
+
+  """
+  Retrieve a paginated list of lots for this auction.
+  """
+  lots(filter: LotFilterInput, sortBy: LotSortingInput, before: String, after: String, first: Int, last: Int): LotCountableConnection!
+}
+
+"""
+Page info for paginated lists.
+"""
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+enum LotStatus {
+  OPEN
+  CLOSED
+  SOLD  
+}
+
+"""
+Auction type with extended fields for lot calling.
+"""
+extend type Auction {
+
+  """
+  Time when the auction's first lot calling starts.
+  """
+  firstLotCallingStartsAt: DateTime!
+
+  """
+  Time when the auction's first lot calling ends.
+  """
+  firstLotCallingEndsAt: DateTime!
+
+  """
+  Whether the auction's first lot calling has started.
+  """
+  isFirstLotCallingStarted: Boolean!
+
+  """
+  Whether the auction's first lot calling has ended.
+  """
+  isFirstLotCallingEnded: Boolean!
+
+  """
+  Retrieve the current lot being called during the auction.
+  """
+  currentCalledLot: Lot
+}
+
+"""
+Classification type represents a hierarchical classification structure.
+"""
+type Classification {
+  id: ID!
+  name: String!
+  slug: String!
+  level: Int!
+  parent: Classification
+  children: [Classification]!
+  auction: Auction!
+}
+
+"""
+Connection for paginated Classification lists.
+"""
+type ClassificationCountableConnection {
+  pageInfo: PageInfo!
+  edges: [ClassificationCountableEdge]!
+  totalCount: Int
+}
+
+"""
+Edge for a Classification in a paginated list.
+"""
+type ClassificationCountableEdge {
+  node: Classification 
+  cursor: String!
+}
+
+"""
+Input for filtering classifications.
+"""
+input ClassificationFilterInput {
+  search: String
+  ids: [ID!]
+  level: Int
+  auction: ID
+}
+
+"""
+Input for sorting classifications.
+"""
+input ClassificationSortingInput {
+  direction: OrderDirection!
+  field: ClassificationSortField!  
+}
+
+"""
+Enum for sorting Classification lists.
+"""
+enum ClassificationSortField {
+  NAME
+  LEVEL
+}
+
+"""
+Extend the Query type to support classification queries.
+"""
+extend type Query {
+  """
+  Retrieve a paginated list of classifications.
+  """
+  classifications(
+    filter: ClassificationFilterInput
+    sortBy: ClassificationSortingInput
+    level: Int
+    before: String
+    after: String
+    first: Int
+    last: Int
+  ): ClassificationCountableConnection!
+
+  """
+  Retrieve a classification by ID or slug.
+  """
+  classification(
+    id: ID
+    slug: String    
+  ): Classification
+}
+
+"""
+Extend the Auction type to include classifications.
+"""
+extend type Auction {
+  """
+  Retrieve the classifications associated with this auction.
+  """
+  classifications: [Classification]!
+}
