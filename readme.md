@@ -1,3 +1,35 @@
+```mermaid
+graph TD
+Auctions(Auctions) --> CreateAuction(CreateAuction)
+Auctions --> AuctionDetails(AuctionDetails)
+Auctions --> AuctionTimeframes(AuctionTimeframes)
+Auctions --> ChannelIntegration(ChannelIntegration)
+Auctions --> TranslationSupport(TranslationSupport)
+Auctions --> Pagination(Pagination)
+
+Lots(Lots) --> CreateLot(CreateLot)
+Lots --> LotDetails(LotDetails)
+Lots --> LotStatus(LotStatus)
+Lots --> LotCountdown(LotCountdown)
+Lots --> EndTime(EndTime)
+Lots --> LotPagination(LotPagination)
+
+Bidding(Bidding) --> PlaceBid(PlaceBid)
+Bidding --> BidDetails(BidDetails)
+
+AuctionCustomization(AuctionCustomization) --> BidIncrementRules(BidIncrementRules)
+AuctionCustomization --> AuctionSearch(AuctionSearch)
+
+UserPermissionsAndAuthentication(UserPermissionsAndAuthentication) --> AdminAccess(AdminAccess)
+UserPermissionsAndAuthentication --> PortalAccess(PortalAccess)
+UserPermissionsAndAuthentication --> StaffOnlyAccess(StaffOnlyAccess)
+UserPermissionsAndAuthentication --> Authentication(Authentication)
+
+Auctions(Auctions) --> Lots(Lots)
+Lots(Lots) --> Bidding(Bidding)
+
+```
+
 # Saleor Plugin Extension Documentation
 
 ## Overview
@@ -77,104 +109,7 @@ The Saleor Plugin Extension enhances the Saleor platform by introducing powerful
 
 * * *
 
-```mermaid
-graph TD
 
-%% Directives
-subgraph Directives
-  @adminAccess --> FIELD_DEFINITION
-  @portalAccess --> FIELD_DEFINITION
-  @staffOnly --> FIELD_DEFINITION
-end
-
-%% Scalars and Enums
-subgraph ScalarsEnums
-  DateTime
-  LotStatus
-  AuctionSortField
-end
-
-%% Inputs and Outputs
-subgraph InputsOutputs
-  input["input RegisterInput"]
-  type["type RegisterResult"]
-  type-->Boolean
-  type Manifest
-  input-->String
-  Manifest-->String
-  type Query
-  Query-->Manifest
-  Query-->Auction
-  Query-->Lot
-  Query-->BidIncrementRule
-  Query-->Lot
-  Query-->Lot
-  type Lot
-  type-->String
-  type-->String
-  type-->Float
-  type-->Auction
-  type-->LotStatus
-  type-->Float
-  type Auction
-  type-->String
-  type-->String
-  type-->String
-  type-->String
-  type-->Image
-  type-->String
-  type-->LotCountableConnection
-  LotCountableConnection-->PageInfo
-  LotCountableConnection-->LotCountableEdge
-  type LotCountableEdge
-  LotCountableEdge-->Lot
-  type LotFilterInput
-  type LotSortingInput
-  type AuctionFilterInput
-  type AuctionSortingInput
-end
-
-%% Mutations
-subgraph Mutations
-  mutation["mutation register"]
-  input CreateLotInput
-  mutation createLot
-  mutation placeBid
-  input PlaceBidInput
-  mutation setLotClosingTime
-  input SetLotClosingTimeInput
-  mutation createBidIncrementRule
-  input CreateBidIncrementRuleInput
-  mutation-->input
-  mutation createLot-->Lot
-  mutation placeBid-->Bid
-  mutation setLotClosingTime-->Lot
-  mutation createBidIncrementRule-->BidIncrementRule
-end
-
-%% Interfaces
-subgraph Interfaces
-  interface Node
-  Node-->ID
-end
-
-%% Diagram Description
-classDef scalarClass fill:#c6e5ff,stroke:#336699
-classDef enumClass fill:#ffdfc6,stroke:#ffab33
-classDef directiveClass fill:#c6ffb3,stroke:#33cc33
-classDef inputOutputClass fill:#ffedcc,stroke:#ff9933
-classDef mutationClass fill:#c2f0c2,stroke:#33cc33
-classDef interfaceClass fill:#e0e0e0,stroke:#666666
-
-class DateTime, LotStatus, AuctionSortField scalarClass
-class @adminAccess, @portalAccess, @staffOnly directiveClass
-class RegisterInput, RegisterResult, Manifest, Query, Lot, Auction, LotCountableConnection, LotCountableEdge, LotFilterInput, LotSortingInput, AuctionFilterInput, AuctionSortingInput inputOutputClass
-class mutationClass, CreateLotInput, PlaceBidInput, SetLotClosingTimeInput, CreateBidIncrementRuleInput mutationClass
-class Node, ID interfaceClass
-
-%% Diagram Connections
-directiveClass --> FIELD_DEFINITION
-scalarClass --> scalarClass
 enumClass --> scalarClass
 inputOutputClass --> scalarClass
 mutationClass --> inputOutputClass
