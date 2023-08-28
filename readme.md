@@ -108,8 +108,6 @@ The Saleor Plugin Extension seamlessly integrates with Saleor's user management,
 The Saleor Plugin Extension enhances the Saleor platform by introducing powerful auction and lot management features. Leveraging Saleor's existing user management, channel permissions, and authentication mechanisms, this extension provides a seamless and secure solution for conducting online auctions. Users can create, manage, and participate in auctions with confidence, benefiting from detailed auction and lot information, bid history, and user-friendly interfaces.
 
 * * *
-
-
 enumClass --> scalarClass
 inputOutputClass --> scalarClass
 mutationClass --> inputOutputClass
